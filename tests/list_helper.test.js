@@ -101,7 +101,17 @@ describe('favorite blog', () => {
 describe('most blogs', () => {
   test('author with most blogs is found', () => {
     const result = listHelper.mostBlogs(listWithManyBlogs);
+
     expect(result.author).toBe('Robert C. Martin');
-    expect(result.bloqQty).toBe(3);
+    expect(result.blogQty).toBe(3);
+  });
+});
+
+describe('most liked', () => {
+  test('author with most likes is found', () => {
+    const result = listHelper.mostLikes(listWithManyBlogs);
+
+    expect(result.author).toBe('Edsger W. Dijkstra');
+    expect(result.likes).toBe(17);
   });
 });
