@@ -1,6 +1,6 @@
 const reverse = require('../test_utils/for_testing').reverse;
 
-describe('average', () => {
+describe('reverse', () => {
   test('reverse of a', () => {
     const result = reverse('a');
     expect(result).toBe('a');
