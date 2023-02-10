@@ -89,11 +89,19 @@ describe('total likes', () => {
 });
 
 describe('favorite blog', () => {
-  test('', () => {
+  test('of list is found', () => {
     const result = listHelper.favoriteBlog(listWithManyBlogs);
-    console.log(result);
+
     expect(result.author).toBe('Edsger W. Dijkstra');
     expect(result.title).toBe('Canonical string reduction');
     expect(result.likes).toBe(12);
+  });
+});
+
+describe('most blogs', () => {
+  test('author with most blogs is found', () => {
+    const result = listHelper.mostBlogs(listWithManyBlogs);
+    expect(result.author).toBe('Robert C. Martin');
+    expect(result.bloqQty).toBe(3);
   });
 });
