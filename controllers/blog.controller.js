@@ -3,9 +3,8 @@ const logger = require('../utils/logger');
 
 async function getAll(request, response, next) {
   try {
-    Blog.find({}).then(blogs => {
-      response.json(blogs);
-    });
+    const blogs = await Blog.find({});
+    response.json(blogs);
   } catch (error) {
     logger.error('`Error while getting info', error.message);
     next(error);
