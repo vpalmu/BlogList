@@ -6,10 +6,14 @@ const api = supertest(app);
 
 describe('blog list tests', () => {
   test('blogs are returned as json', async () => {
-    await api
+    const response = await api
       .get('/api/blogs')
       .expect(200)
       .expect('Content-Type', /application\/json/);
+
+    const contents = response.body.map(r => r.content);
+    expect(contents).toHaveLength(3);
+
   }, 100000);
 });
 
