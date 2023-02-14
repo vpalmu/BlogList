@@ -125,6 +125,14 @@ describe('blog delete tests', () => {
       .expect(204);
   });
 
+  test('blog is not deleted - id doesnt exist', async () => {
+    const id = '4a422a851b54a676234d17f7';
+
+    await api
+      .delete(`/api/blogs/${id}`)
+      .expect(404);
+  });
+
 });
 
 describe('blog update tests', () => {
@@ -145,6 +153,21 @@ describe('blog update tests', () => {
       .expect('Content-Type', /application\/json/);
   });
 
+  test('blog is not updated - id doesnt exitst', async () => {
+    const id = '6a422a851b54a676234d17f9';
+
+    const blogToUpdate = {
+      title: 'React Patterns (updated)',
+      author: 'Michael Chan (updated)',
+      url: 'updated url',
+      likes: 9090
+    };
+
+    await api
+      .put(`/api/blogs/${id}`)
+      .send(blogToUpdate)
+      .expect(404);
+  });
 });
 
 afterAll(async () => {
