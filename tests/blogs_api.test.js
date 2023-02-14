@@ -118,24 +118,31 @@ describe('blog post tests', () => {
 
 describe('blog delete tests', () => {
   test('blog is deleted', async () => {
+    const id = '5a422a851b54a676234d17f7'; // React Patterns, Michael Chan
 
-    const newBlog = {
-      title: 'Perfect Title',
-      author: 'VMP',
-      url: '',
-      likes: 99
+    await api
+      .delete(`/api/blogs/${id}`)
+      .expect(204);
+  });
+
+});
+
+describe('blog update tests', () => {
+  test('blog is updated', async () => {
+    const id = '5a422a851b54a676234d17f7'; // React Patterns, Michael Chan
+
+    const blogToUpdate = {
+      title: 'React Patterns (updated)',
+      author: 'Michael Chan (updated)',
+      url: 'updated url',
+      likes: 9090
     };
 
-    const response = await api
-      .post('/api/blogs')
-      .send(newBlog)
-      .expect(201)
+    await api
+      .put(`/api/blogs/${id}`)
+      .send(blogToUpdate)
+      .expect(200)
       .expect('Content-Type', /application\/json/);
-
-    const contents = response.body;
-
-    expect(contents.author).toBe('VMP');
-    expect(contents.id).toBeDefined();
   });
 
 });
