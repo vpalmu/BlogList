@@ -153,7 +153,7 @@ describe('blog update tests', () => {
       .expect('Content-Type', /application\/json/);
   });
 
-  test('blog is not updated - id doesnt exitst', async () => {
+  test('blog is not updated - id doesnt exist', async () => {
     const id = '6a422a851b54a676234d17f9';
 
     const blogToUpdate = {
