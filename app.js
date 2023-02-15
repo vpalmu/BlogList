@@ -1,9 +1,9 @@
-const express = require('express');                  // import express and create 'express' function
-const app = express();                               // create express application with 'express' function
-const cors = require('cors');                        // cors middleware
-const blogRouter = require('./routes/blog.routes');  // routes middleware
-const morgan = require('morgan');                    // request logger middleware
-const middleware = require('./utils/middleware');    // custom middleware for error handling and logging
+const express = require('express');                      // import express and create 'express' function
+const app = express();                                   // create express application with 'express' function
+const cors = require('cors');                            // cors middleware
+const blogRouter = require('./routes/bloglist.routes');  // routes middleware
+const morgan = require('morgan');                        // request logger middleware
+const middleware = require('./utils/middleware');        // custom middleware for error handling and logging
 
 app.use(cors());
 app.use(express.json());
@@ -18,8 +18,10 @@ app.use(express.json());
 morgan.token('request-log', middleware.requestLogger);
 app.use(morgan(middleware.requestLoggerParams));
 
-app.use('/', blogRouter);            // routes for blogs
+app.use('/', blogRouter); // routes
+
 app.use(middleware.unknownEndpoint); // route for unknown endpoints
+
 
 // this has to be the last loaded middleware.
 app.use(middleware.errorHandler);
