@@ -8,7 +8,7 @@ const connect = require('../model/connectDb'); // 'connect' is used just to open
 
 async function getAll(request, response, next) {
   try {
-    const users = await User.find({});
+    const users = await User.find({}).populate('blogs');
     response.json(users);
   } catch (error) {
     logger.error('`Error while getting all users', error.message);

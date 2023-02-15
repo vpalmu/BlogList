@@ -5,6 +5,12 @@ const usersInDb = async () => {
   return users.map(u => u.toJSON());
 };
 
+const getRootUser = async () => {
+  const root = await User.findOne({ username: 'root' });
+  return root;
+};
+
 module.exports = {
-  usersInDb
+  usersInDb,
+  getRootUser
 };

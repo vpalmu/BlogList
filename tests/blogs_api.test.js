@@ -4,6 +4,7 @@ const app = require('../app');
 const Blog = require('../model/blog');
 const logger = require('../utils/logger');
 const listHelper = require('../test_utils/list_helper');
+const userHelper = require('../test_utils/user.helper');
 
 const api = supertest(app);
 
@@ -48,11 +49,13 @@ describe('blog list tests', () => {
 describe('blog post tests', () => {
   test('new blog is added', async () => {
 
+    const rootUser = await userHelper.getRootUser();
     const newBlog = {
       title: 'Perfect Title',
       author: 'VMP',
       url: '',
-      likes: 99
+      likes: 99,
+      userId: rootUser.id
     };
 
     const response = await api
@@ -68,11 +71,12 @@ describe('blog post tests', () => {
   });
 
   test('missing likes property defaults to zero', async () => {
-
+    const rootUser = await userHelper.getRootUser();
     const newBlogNoLikes = {
       title: 'New Title, no likes',
       author: 'VMP',
-      url: ''
+      url: '',
+      userId: rootUser.id
     };
 
     const response = await api
@@ -88,11 +92,13 @@ describe('blog post tests', () => {
   });
 
   test('missing title property throws bad request', async () => {
+    const rootUser = await userHelper.getRootUser();
 
     const newBlogNoLikes = {
       author: 'VMP',
       url: '',
-      likes: 65
+      likes: 65,
+      userId: rootUser.id
     };
 
     await api
@@ -102,11 +108,28 @@ describe('blog post tests', () => {
   });
 
   test('missing URL property throws bad request', async () => {
+    const rootUser = await userHelper.getRootUser();
 
     const newBlogs = {
       title: 'New Title, no URL',
       author: 'VMP',
-      likes: 65
+      likes: 65,
+      userId: rootUser.id
+    };
+
+    await api
+      .post('/api/blogs')
+      .send(newBlogs)
+      .expect(400);
+  });
+
+  test('invalid user Id throws bad request', async () => {
+    const newBlogs = {
+      title: 'New Title',
+      author: 'VMP',
+      likes: 65,
+      url: '',
+      userId: '63ecebfc379bd9c2801d2eb6'
     };
 
     await api

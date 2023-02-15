@@ -1,12 +1,15 @@
 const Blog = require('../model/blog');
+const User = require('../model/user');
 const logger = require('../utils/logger');
 const utils = require('../utils/utils');
+const helper = require('../test_utils/user.helper');
+
 // eslint-disable-next-line no-unused-vars
 const connect = require('../model/connectDb'); // 'connect' is used just to open connection with db
 
 async function getAll(request, response, next) {
   try {
-    const blogs = await Blog.find({});
+    const blogs = await Blog.find({}).populate('user', { username: 1, name: 1 });
     response.json(blogs);
   } catch (error) {
     logger.error('`Error while getting info', error.message);
@@ -26,6 +29,18 @@ async function createBlog(request, response, next) {
       return response.status(400).end();
     }
 
+    if (request.body.userId === undefined) {
+      response.statusMessage = 'User ID missing';
+      return response.status(400).end();
+    }
+
+    const user = await User.findById(request.body.userId);
+
+    if (!user) {
+      response.statusMessage = 'User not found';
+      return response.status(400).end();
+    }
+
     const postLikes = request.body.likes === undefined
       ? 0
       : request.body.likes;
@@ -34,10 +49,15 @@ async function createBlog(request, response, next) {
       title: request.body.title,
       author: request.body.author,
       url: request.body.url,
-      likes: postLikes
+      likes: postLikes,
+      user: user.id
     });
 
-    const newBlog = await blog.save();
+    const newBlog = await blog.save();         // save blog (with user id)
+
+    user.blogs = user.blogs.concat(newBlog._id);  // make user to refer to new blob, use value from '_id' field instead of 'id'
+    await user.save();                            // save the updated user data
+
     response.status(201).json(newBlog);
   }
   catch (error) {
