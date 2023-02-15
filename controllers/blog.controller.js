@@ -1,6 +1,8 @@
 const Blog = require('../model/blog');
 const logger = require('../utils/logger');
 const utils = require('../utils/utils');
+// eslint-disable-next-line no-unused-vars
+const connect = require('../model/connectDb'); // 'connect' is used just to open connection with db
 
 async function getAll(request, response, next) {
   try {
