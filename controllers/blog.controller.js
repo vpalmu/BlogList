@@ -2,9 +2,11 @@ const Blog = require('../model/blog');
 const User = require('../model/user');
 const logger = require('../utils/logger');
 const utils = require('../utils/utils');
+const jwt = require('jsonwebtoken');
 
 // eslint-disable-next-line no-unused-vars
 const connect = require('../model/connectDb'); // 'connect' is used just to open connection with db
+//const { request } = require('../app');
 
 async function getAll(request, response, next) {
   try {
@@ -16,8 +18,30 @@ async function getAll(request, response, next) {
   }
 }
 
+const getTokenFrom = request => {
+  const authorization = request.get('authorization');
+  if (authorization && authorization.startsWith('Bearer')) {
+    return authorization.replace('Bearer ','');
+  }
+
+  return null;
+};
+
 async function createBlog(request, response, next) {
   try {
+    const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET);
+
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: 'token invalid.' });
+    }
+
+    const user = await User.findById(decodedToken.id);
+
+    if (!user) {
+      response.statusMessage = 'User not found';
+      return response.status(400).end();
+    }
+
     if (request.body.title === undefined) {
       response.statusMessage = 'Title missing';
       return response.status(400).end();
@@ -25,18 +49,6 @@ async function createBlog(request, response, next) {
 
     if (request.body.url === undefined) {
       response.statusMessage = 'Url missing';
-      return response.status(400).end();
-    }
-
-    if (request.body.userId === undefined) {
-      response.statusMessage = 'User ID missing';
-      return response.status(400).end();
-    }
-
-    const user = await User.findById(request.body.userId);
-
-    if (!user) {
-      response.statusMessage = 'User not found';
       return response.status(400).end();
     }
 
