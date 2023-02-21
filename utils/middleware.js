@@ -1,4 +1,9 @@
+const jwt = require('jsonwebtoken');
+const User = require('../model/user');
 const logger = require('./logger');
+
+// eslint-disable-next-line no-unused-vars
+const connect = require('../model/connectDb'); // 'connect' is used just to open connection with db
 
 const errorHandler = (error, request, response, next) => {
   logger.error(error.message);
@@ -35,10 +40,31 @@ const requestLogger = (request, response) => {
 
 // Remember that a normal middleware function is a function with three parameters,
 // that at the end calls the last parameter next to move the control to the next middleware
-const getTokenFrom = (request, response, next) => {
+const tokenExtractor  = (request, response, next) => {
   const authorization = request.get('authorization');
   if (authorization && authorization.startsWith('Bearer')) {
     request.token = authorization.replace('Bearer ','');
+  }
+
+  next();
+};
+
+const userExtractor  = async (request, response, next) => {
+  if (request.token) {
+    const decodedToken = jwt.verify(request.token, process.env.SECRET);
+
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: 'token invalid.' });
+    }
+
+    const user = await User.findById(decodedToken.id);
+
+    if (!user) {
+      response.statusMessage = 'User not found';
+      return response.status(400).end();
+    }
+
+    request.user = user; // save user data into request object
   }
   next();
 };
@@ -49,6 +75,7 @@ module.exports = {
   errorHandler,
   unknownEndpoint,
   requestLogger,
-  getTokenFrom,
+  tokenExtractor,
+  userExtractor,
   requestLoggerParams
 };

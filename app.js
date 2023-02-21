@@ -17,7 +17,8 @@ app.use(express.json());
 //
 morgan.token('request-log', middleware.requestLogger);
 app.use(morgan(middleware.requestLoggerParams));
-app.use(middleware.getTokenFrom); // extract token
+app.use(middleware.tokenExtractor);
+app.use(middleware.userExtractor);
 
 app.use('/', blogRouter); // routes
 

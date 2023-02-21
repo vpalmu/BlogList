@@ -1,8 +1,6 @@
 const Blog = require('../model/blog');
-const User = require('../model/user');
 const logger = require('../utils/logger');
 const utils = require('../utils/utils');
-const jwt = require('jsonwebtoken');
 
 // eslint-disable-next-line no-unused-vars
 const connect = require('../model/connectDb'); // 'connect' is used just to open connection with db
@@ -19,13 +17,7 @@ async function getAll(request, response, next) {
 
 async function createBlog(request, response, next) {
   try {
-    const decodedToken = jwt.verify(request.token, process.env.SECRET);
-
-    if (!decodedToken.id) {
-      return response.status(401).json({ error: 'token invalid.' });
-    }
-
-    const user = await User.findById(decodedToken.id);
+    const user = request.user;
 
     if (!user) {
       response.statusMessage = 'User not found';
