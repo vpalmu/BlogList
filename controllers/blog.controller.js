@@ -6,7 +6,6 @@ const jwt = require('jsonwebtoken');
 
 // eslint-disable-next-line no-unused-vars
 const connect = require('../model/connectDb'); // 'connect' is used just to open connection with db
-//const { request } = require('../app');
 
 async function getAll(request, response, next) {
   try {
@@ -18,18 +17,9 @@ async function getAll(request, response, next) {
   }
 }
 
-const getTokenFrom = request => {
-  const authorization = request.get('authorization');
-  if (authorization && authorization.startsWith('Bearer')) {
-    return authorization.replace('Bearer ','');
-  }
-
-  return null;
-};
-
 async function createBlog(request, response, next) {
   try {
-    const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET);
+    const decodedToken = jwt.verify(request.token, process.env.SECRET);
 
     if (!decodedToken.id) {
       return response.status(401).json({ error: 'token invalid.' });

@@ -33,11 +33,22 @@ const requestLogger = (request, response) => {
   return '- agent: ' + request.headers['user-agent'];
 };
 
+// Remember that a normal middleware function is a function with three parameters,
+// that at the end calls the last parameter next to move the control to the next middleware
+const getTokenFrom = (request, response, next) => {
+  const authorization = request.get('authorization');
+  if (authorization && authorization.startsWith('Bearer')) {
+    request.token = authorization.replace('Bearer ','');
+  }
+  next();
+};
+
 const requestLoggerParams = ':method :url :status - :response-time ms :request-log';
 
 module.exports = {
   errorHandler,
   unknownEndpoint,
   requestLogger,
+  getTokenFrom,
   requestLoggerParams
 };
