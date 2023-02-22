@@ -42,7 +42,7 @@ const requestLogger = (request, response) => {
 // that at the end calls the last parameter next to move the control to the next middleware
 const tokenExtractor  = (request, response, next) => {
   const authorization = request.get('authorization');
-  if (authorization && authorization.startsWith('Bearer')) {
+  if (authorization && authorization.startsWith('Bearer ')) {
     request.token = authorization.replace('Bearer ','');
   }
 
