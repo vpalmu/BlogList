@@ -8,7 +8,8 @@
     "dev": "cross-env NODE_ENV=development nodemon index.js",
     "lint": "eslint .",
     "test": "cross-env NODE_ENV=test jest --verbose --runInBand",
-    "testDebug": "cross-env NODE_ENV=test jest --watchAll --detectOpenHandles"
+    "testDebug": "cross-env NODE_ENV=test jest --watchAll --detectOpenHandles",
+    "coverage": "cross-env NODE_ENV=test npx jest --coverage"
   },
   "repository": {
     "type": "git",
