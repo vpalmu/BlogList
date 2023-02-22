@@ -1,9 +1,23 @@
 const mongoose = require('mongoose');
 const supertest = require('supertest');
-
+const logger = require('../utils/logger');
+const User = require('../model/user');
+const bcrypt = require('bcrypt');
 const app = require('../app');
 
 const api = supertest(app);
+
+beforeEach(async () => {
+  await User.deleteMany({});
+  logger.info('db cleared');
+
+  const passwordHash = await bcrypt.hash('sekret', 10);
+  const user = new User({ username: 'root', name: 'Root Man', passwordHash });
+
+  await user.save();
+
+  logger.info('db initialized');
+});
 
 describe('login tests', () => {
   test('login as root', async () => {
