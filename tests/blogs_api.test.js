@@ -5,12 +5,16 @@ const Blog = require('../model/blog');
 const logger = require('../utils/logger');
 const listHelper = require('../test_utils/list_helper');
 const userHelper = require('../test_utils/user.helper');
+const User = require('../model/user');
 
 const api = supertest(app);
 
 beforeEach(async () => {
   await Blog.deleteMany({});
+  await User.deleteMany({});
   logger.info('db cleared');
+
+  userHelper.createRootUser();
 
   for (let blog of listHelper.listWithManyBlogs) {
     let blogObject = new Blog(blog);
@@ -50,16 +54,20 @@ describe('blog post tests', () => {
   test('new blog is added', async () => {
 
     const rootUser = await userHelper.getRootUser();
+
     const newBlog = {
-      title: 'Perfect Title',
+      title: 'Perfect Title 3',
       author: 'VMP',
       url: '',
       likes: 99,
       userId: rootUser.id
     };
 
+    const token = await userHelper.getTokenForRootUser();
+
     const response = await api
       .post('/api/blogs')
+      .set('Authorization', `${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/);
@@ -68,6 +76,23 @@ describe('blog post tests', () => {
 
     expect(contents.author).toBe('VMP');
     expect(contents.id).toBeDefined();
+  });
+
+  test('new blog is not added - missing token', async () => {
+
+    const rootUser = await userHelper.getRootUser();
+    const newBlog = {
+      title: 'Perfect Title 3',
+      author: 'VMP',
+      url: '',
+      likes: 99,
+      userId: rootUser.id
+    };
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401);
   });
 
   test('missing likes property defaults to zero', async () => {
@@ -79,9 +104,12 @@ describe('blog post tests', () => {
       userId: rootUser.id
     };
 
+    const token = await userHelper.getTokenForRootUser();
+
     const response = await api
       .post('/api/blogs')
       .send(newBlogNoLikes)
+      .set('Authorization', token)
       .expect(201)
       .expect('Content-Type', /application\/json/);
 
@@ -101,8 +129,11 @@ describe('blog post tests', () => {
       userId: rootUser.id
     };
 
+    const token = await userHelper.getTokenForRootUser();
+
     await api
       .post('/api/blogs')
+      .set('Authorization', token)
       .send(newBlogNoLikes)
       .expect(400);
   });
@@ -117,43 +148,62 @@ describe('blog post tests', () => {
       userId: rootUser.id
     };
 
-    await api
-      .post('/api/blogs')
-      .send(newBlogs)
-      .expect(400);
-  });
-
-  test('invalid user Id throws bad request', async () => {
-    const newBlogs = {
-      title: 'New Title',
-      author: 'VMP',
-      likes: 65,
-      url: '',
-      userId: '63ecebfc379bd9c2801d2eb6'
-    };
+    const token = await userHelper.getTokenForRootUser();
 
     await api
       .post('/api/blogs')
       .send(newBlogs)
+      .set('Authorization', token)
       .expect(400);
   });
 });
 
 describe('blog delete tests', () => {
-  test('blog is deleted', async () => {
-    const id = '5a422a851b54a676234d17f7'; // React Patterns, Michael Chan
 
+  test('blog is created and deleted', async () => {
+    // create blog
+    const rootUser = await userHelper.getRootUser();
+    const newBlog = {
+      title: 'test - blog is created and deleted',
+      author: 'Root Man',
+      url: '',
+      likes: 99,
+      userId: rootUser.id
+    };
+
+    const token = await userHelper.getTokenForRootUser();
+
+    const response = await api
+      .post('/api/blogs')
+      .set('Authorization', token)
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/);
+    const id = response.body.id;
+
+    // delete blog
     await api
       .delete(`/api/blogs/${id}`)
+      .set('Authorization', token)
       .expect(204);
   });
 
   test('blog is not deleted - id doesnt exist', async () => {
+    const id = '4a422a851b54a676234d17f9';
+    const token = await userHelper.getTokenForRootUser();
+
+    await api
+      .delete(`/api/blogs/${id}`)
+      .set('Authorization', token)
+      .expect(404);
+  });
+
+  test('blog is not deleted - unauthorized', async () => {
     const id = '4a422a851b54a676234d17f7';
 
     await api
       .delete(`/api/blogs/${id}`)
-      .expect(404);
+      .expect(401);
   });
 
 });

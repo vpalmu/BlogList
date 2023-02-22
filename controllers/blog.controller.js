@@ -20,8 +20,7 @@ async function createBlog(request, response, next) {
     const user = request.user;
 
     if (!user) {
-      response.statusMessage = 'User missing';
-      return response.status(400).end();
+      return response.status(401).end();
     }
 
     if (request.body.title === undefined) {
@@ -63,12 +62,17 @@ async function deleteBlog(request, response, next) {
   try {
     const user = request.user;
     if (!user) {
-      response.statusMessage = 'User missing';
-      return response.status(400).end();
+      return response.status(401).end();
     }
 
     logger.info('request.params.id', request.params.id);
     const bloqToBeDeleted = await Blog.findById(request.params.id);
+
+    if (!bloqToBeDeleted) {
+      logger.info(`blog not found, id: ${request.params.id}`);
+      response.statusMessage = 'blog doesn\'t exist';
+      return response.status(404).end();  // resource not found
+    }
 
     if (!bloqToBeDeleted.user) {
       response.statusMessage = 'owner data missing.';
